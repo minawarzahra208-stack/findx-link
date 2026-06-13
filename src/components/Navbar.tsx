@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
-import { Bell, LogOut, Search, Sparkles } from "lucide-react";
+import { Bell, LogOut, MessageSquare, Search, Sparkles } from "lucide-react";
 
 export function Navbar() {
   const { user, role, signOut } = useAuth();
@@ -44,6 +44,9 @@ export function Navbar() {
         <div className="flex items-center gap-2">
           {user ? (
             <>
+              <Button size="icon" variant="ghost" onClick={() => navigate({ to: "/messages" })} aria-label="Messages">
+                <MessageSquare className="h-5 w-5" />
+              </Button>
               <Button size="icon" variant="ghost" onClick={() => navigate({ to: "/notifications" })} aria-label="Notifications">
                 <Bell className="h-5 w-5" />
               </Button>

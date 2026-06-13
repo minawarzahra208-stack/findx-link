@@ -98,6 +98,54 @@ export type Database = {
         }
         Relationships: []
       }
+      messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          match_found_id: string | null
+          match_lost_id: string | null
+          read: boolean
+          recipient_id: string
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          match_found_id?: string | null
+          match_lost_id?: string | null
+          read?: boolean
+          recipient_id: string
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          match_found_id?: string | null
+          match_lost_id?: string | null
+          read?: boolean
+          recipient_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_match_found_id_fkey"
+            columns: ["match_found_id"]
+            isOneToOne: false
+            referencedRelation: "found_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_match_lost_id_fkey"
+            columns: ["match_lost_id"]
+            isOneToOne: false
+            referencedRelation: "lost_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           confidence: number | null
