@@ -59,7 +59,6 @@ export type Database = {
       lost_items: {
         Row: {
           category: string
-          contact_number: string | null
           created_at: string
           date_lost: string
           description: string | null
@@ -73,7 +72,6 @@ export type Database = {
         }
         Insert: {
           category: string
-          contact_number?: string | null
           created_at?: string
           date_lost: string
           description?: string | null
@@ -87,7 +85,6 @@ export type Database = {
         }
         Update: {
           category?: string
-          contact_number?: string | null
           created_at?: string
           date_lost?: string
           description?: string | null
