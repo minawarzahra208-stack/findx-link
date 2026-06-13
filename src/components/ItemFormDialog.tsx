@@ -70,7 +70,6 @@ export function ItemFormDialog({ type, trigger, initial, onSaved }: Props) {
       if (type === "lost") {
         payload.date_lost = form.date;
         payload.location_lost = form.location.trim();
-        payload.contact_number = form.contact_number?.trim() || null;
       } else {
         payload.date_found = form.date;
         payload.location_found = form.location.trim();
