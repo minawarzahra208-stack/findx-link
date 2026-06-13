@@ -53,7 +53,7 @@ export function ItemCard({ item, type, actions }: Props) {
           {location && <span className="inline-flex items-center gap-1"><MapPin className="h-3 w-3" />{location}</span>}
         </div>
         {item.description && <p className="text-sm text-muted-foreground line-clamp-2">{item.description}</p>}
-        {item.contact_number && <p className="text-xs text-foreground/80">Contact: {item.contact_number}</p>}
+        
         {actions && <div className="pt-2 flex gap-2">{actions}</div>}
       </div>
     </Card>
