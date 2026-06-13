@@ -126,12 +126,6 @@ export function ItemFormDialog({ type, trigger, initial, onSaved }: Props) {
             <Label>Location</Label>
             <Input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="e.g. Library 2nd floor" />
           </div>
-          {type === "lost" && (
-            <div className="space-y-2">
-              <Label>Contact number (optional)</Label>
-              <Input value={form.contact_number} onChange={(e) => setForm({ ...form, contact_number: e.target.value })} placeholder="+94 7XX XXX XXX" />
-            </div>
-          )}
           <div className="space-y-2">
             <Label>Description</Label>
             <Textarea rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Distinctive details, color, brand…" />
