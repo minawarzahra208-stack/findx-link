@@ -1,7 +1,10 @@
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Calendar, MapPin, Tag } from "lucide-react";
+import { Calendar, MapPin, MessageSquare, Tag } from "lucide-react";
 import { format } from "date-fns";
+import { Link } from "@tanstack/react-router";
+import { useAuth } from "@/lib/auth-context";
 
 interface Props {
   item: {
@@ -11,6 +14,7 @@ interface Props {
     category: string;
     image_url: string | null;
     status: string;
+    user_id?: string;
     location_lost?: string;
     location_found?: string;
     date_lost?: string;
@@ -29,8 +33,10 @@ const STATUS_TONE: Record<string, string> = {
 };
 
 export function ItemCard({ item, type, actions }: Props) {
+  const { user } = useAuth();
   const location = type === "lost" ? item.location_lost : item.location_found;
   const date = type === "lost" ? item.date_lost : item.date_found;
+  const canMessage = !!(user && item.user_id && item.user_id !== user.id);
   return (
     <Card className="group overflow-hidden border-border/60 bg-card/80 backdrop-blur transition-all hover:shadow-glow hover:-translate-y-1">
       <div className="aspect-video w-full overflow-hidden bg-muted">
@@ -54,7 +60,19 @@ export function ItemCard({ item, type, actions }: Props) {
         </div>
         {item.description && <p className="text-sm text-muted-foreground line-clamp-2">{item.description}</p>}
         
-        {actions && <div className="pt-2 flex gap-2">{actions}</div>}
+        {(actions || canMessage) && (
+          <div className="pt-2 flex gap-2 flex-wrap">
+            {actions}
+            {canMessage && (
+              <Button asChild size="sm" variant="outline" className="ml-auto">
+                <Link to="/messages/$userId" params={{ userId: item.user_id! }}>
+                  <MessageSquare className="h-4 w-4 mr-1" />
+                  {type === "lost" ? "Message owner" : "Message finder"}
+                </Link>
+              </Button>
+            )}
+          </div>
+        )}
       </div>
     </Card>
   );
