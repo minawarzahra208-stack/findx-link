@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { MessageSquare } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
-export const Route = createFileRoute("/_authenticated/messages")({
+export const Route = createFileRoute("/_authenticated/messages/")({
   head: () => ({ meta: [{ title: "Messages — FindX" }] }),
   component: InboxPage,
 });
