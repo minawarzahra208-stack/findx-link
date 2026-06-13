@@ -37,7 +37,6 @@ export function ItemFormDialog({ type, trigger, initial, onSaved }: Props) {
     category: initial?.category ?? "",
     date: initial?.[type === "lost" ? "date_lost" : "date_found"] ?? new Date().toISOString().slice(0, 10),
     location: initial?.[type === "lost" ? "location_lost" : "location_found"] ?? "",
-    contact_number: initial?.contact_number ?? "",
     image_url: initial?.image_url ?? "",
   });
   const [file, setFile] = useState<File | null>(null);
