@@ -18,7 +18,6 @@ const baseSchema = z.object({
   category: z.string().min(1, "Required"),
   date: z.string().min(1, "Required"),
   location: z.string().trim().min(1, "Required").max(200),
-  contact_number: z.string().trim().max(40).optional(),
 });
 
 interface Props {
