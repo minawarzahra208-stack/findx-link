@@ -32,8 +32,8 @@ function NotifPage() {
     setItems(notifs);
 
     // Resolve the "other party" for each notification via its linked items
-    const lostIds = Array.from(new Set(notifs.map((n) => n.match_lost_id).filter(Boolean)));
-    const foundIds = Array.from(new Set(notifs.map((n) => n.match_found_id).filter(Boolean)));
+    const lostIds = Array.from(new Set(notifs.map((n) => n.match_lost_id).filter((x): x is string => !!x)));
+    const foundIds = Array.from(new Set(notifs.map((n) => n.match_found_id).filter((x): x is string => !!x)));
     const [{ data: lost }, { data: found }] = await Promise.all([
       lostIds.length ? supabase.from("lost_items").select("id, user_id").in("id", lostIds) : Promise.resolve({ data: [] as any[] }),
       foundIds.length ? supabase.from("found_items").select("id, user_id").in("id", foundIds) : Promise.resolve({ data: [] as any[] }),
