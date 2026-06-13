@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { ItemCard } from "@/components/ItemCard";
@@ -6,7 +6,7 @@ import { ItemFormDialog } from "@/components/ItemFormDialog";
 import { useAuth } from "@/lib/auth-context";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Pencil, Trash2, CheckCircle2 } from "lucide-react";
+import { Plus, Pencil, Trash2, CheckCircle2, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/found")({
@@ -17,11 +17,45 @@ export const Route = createFileRoute("/_authenticated/found")({
 function FoundPage() {
   const { user } = useAuth();
   const [items, setItems] = useState<any[]>([]);
+  const [partnerByItem, setPartnerByItem] = useState<Record<string, string>>({});
 
   const load = async () => {
     if (!user) return;
-    const { data } = await supabase.from("found_items").select("*").eq("user_id", user.id).order("created_at", { ascending: false });
+    const [{ data }, { data: matches }] = await Promise.all([
+      supabase.from("found_items").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
+      supabase
+        .from("notifications")
+        .select("match_found_id, match_lost_id, created_at")
+        .eq("user_id", user.id)
+        .eq("match_kind", "found->lost")
+        .not("match_found_id", "is", null)
+        .not("match_lost_id", "is", null)
+        .order("created_at", { ascending: false }),
+    ]);
     setItems(data ?? []);
+
+    const lostIds = Array.from(new Set((matches ?? []).map((m) => m.match_lost_id).filter((id): id is string => !!id)));
+    if (!lostIds.length) {
+      setPartnerByItem({});
+      return;
+    }
+
+    const { data: lostItems } = await supabase.from("lost_items").select("id, user_id").in("id", lostIds);
+    const lostOwnerById = new Map((lostItems ?? []).map((item) => [item.id, item.user_id]));
+    const nextPartners: Record<string, string> = {};
+
+    for (const match of matches ?? []) {
+      const foundId = match.match_found_id as string | null;
+      const lostId = match.match_lost_id as string | null;
+      if (!foundId || !lostId || nextPartners[foundId]) continue;
+
+      const partnerId = lostOwnerById.get(lostId);
+      if (partnerId && partnerId !== user.id) {
+        nextPartners[foundId] = partnerId;
+      }
+    }
+
+    setPartnerByItem(nextPartners);
   };
   useEffect(() => { load(); }, [user]);
 
@@ -69,6 +103,13 @@ function FoundPage() {
                   {it.status !== "returned" && (
                     <Button size="sm" variant="outline" onClick={() => markReturned(it.id)}>
                       <CheckCircle2 className="h-3 w-3 mr-1" />Returned
+                    </Button>
+                  )}
+                  {partnerByItem[it.id] && (
+                    <Button asChild size="sm" variant="outline">
+                      <Link to="/messages/$userId" params={{ userId: partnerByItem[it.id] }}>
+                        <MessageSquare className="h-3 w-3 mr-1" />Message owner
+                      </Link>
                     </Button>
                   )}
                   <Button size="sm" variant="ghost" className="text-destructive" onClick={() => remove(it.id)}>
