@@ -18,7 +18,6 @@ const baseSchema = z.object({
   category: z.string().min(1, "Required"),
   date: z.string().min(1, "Required"),
   location: z.string().trim().min(1, "Required").max(200),
-  contact_number: z.string().trim().max(40).optional(),
 });
 
 interface Props {
@@ -38,7 +37,6 @@ export function ItemFormDialog({ type, trigger, initial, onSaved }: Props) {
     category: initial?.category ?? "",
     date: initial?.[type === "lost" ? "date_lost" : "date_found"] ?? new Date().toISOString().slice(0, 10),
     location: initial?.[type === "lost" ? "location_lost" : "location_found"] ?? "",
-    contact_number: initial?.contact_number ?? "",
     image_url: initial?.image_url ?? "",
   });
   const [file, setFile] = useState<File | null>(null);
@@ -72,7 +70,6 @@ export function ItemFormDialog({ type, trigger, initial, onSaved }: Props) {
       if (type === "lost") {
         payload.date_lost = form.date;
         payload.location_lost = form.location.trim();
-        payload.contact_number = form.contact_number?.trim() || null;
       } else {
         payload.date_found = form.date;
         payload.location_found = form.location.trim();
@@ -129,12 +126,6 @@ export function ItemFormDialog({ type, trigger, initial, onSaved }: Props) {
             <Label>Location</Label>
             <Input value={form.location} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="e.g. Library 2nd floor" />
           </div>
-          {type === "lost" && (
-            <div className="space-y-2">
-              <Label>Contact number (optional)</Label>
-              <Input value={form.contact_number} onChange={(e) => setForm({ ...form, contact_number: e.target.value })} placeholder="+94 7XX XXX XXX" />
-            </div>
-          )}
           <div className="space-y-2">
             <Label>Description</Label>
             <Textarea rows={3} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Distinctive details, color, brand…" />
