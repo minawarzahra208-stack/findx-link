@@ -15,7 +15,6 @@ interface Props {
     location_found?: string;
     date_lost?: string;
     date_found?: string;
-    contact_number?: string | null;
   };
   type: "lost" | "found";
   actions?: React.ReactNode;
