@@ -2,10 +2,40 @@ import { Link, useNavigate } from "@tanstack/react-router";
 import { useAuth } from "@/lib/auth-context";
 import { Button } from "@/components/ui/button";
 import { Bell, LogOut, MessageSquare, Search, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export function Navbar() {
   const { user, role, signOut } = useAuth();
   const navigate = useNavigate();
+  const [unread, setUnread] = useState(0);
+
+  useEffect(() => {
+    if (!user) {
+      setUnread(0);
+      return;
+    }
+    const load = async () => {
+      const { count } = await supabase
+        .from("messages")
+        .select("id", { count: "exact", head: true })
+        .eq("recipient_id", user.id)
+        .eq("read", false);
+      setUnread(count ?? 0);
+    };
+    load();
+    const channel = supabase
+      .channel(`nav-unread:${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "messages", filter: `recipient_id=eq.${user.id}` },
+        () => load(),
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
 
   return (
     <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/70 backdrop-blur-xl">
@@ -32,6 +62,9 @@ export function Navbar() {
               <Link to="/found" className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
                 Found
               </Link>
+              <Link to="/messages" className="px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors">
+                Messages
+              </Link>
               {role === "admin" && (
                 <Link to="/admin" className="px-3 py-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors">
                   Admin
@@ -44,8 +77,13 @@ export function Navbar() {
         <div className="flex items-center gap-2">
           {user ? (
             <>
-              <Button size="icon" variant="ghost" onClick={() => navigate({ to: "/messages" })} aria-label="Messages">
+              <Button size="icon" variant="ghost" onClick={() => navigate({ to: "/messages" })} aria-label="Messages" className="relative">
                 <MessageSquare className="h-5 w-5" />
+                {unread > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
+                    {unread > 9 ? "9+" : unread}
+                  </span>
+                )}
               </Button>
               <Button size="icon" variant="ghost" onClick={() => navigate({ to: "/notifications" })} aria-label="Notifications">
                 <Bell className="h-5 w-5" />

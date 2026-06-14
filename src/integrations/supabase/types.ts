@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      claim_requests: {
+        Row: {
+          created_at: string
+          decided_at: string | null
+          finder_id: string
+          found_item_id: string
+          id: string
+          lost_item_id: string
+          message: string | null
+          owner_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          decided_at?: string | null
+          finder_id: string
+          found_item_id: string
+          id?: string
+          lost_item_id: string
+          message?: string | null
+          owner_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          decided_at?: string | null
+          finder_id?: string
+          found_item_id?: string
+          id?: string
+          lost_item_id?: string
+          message?: string | null
+          owner_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "claim_requests_found_item_id_fkey"
+            columns: ["found_item_id"]
+            isOneToOne: false
+            referencedRelation: "found_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "claim_requests_lost_item_id_fkey"
+            columns: ["lost_item_id"]
+            isOneToOne: false
+            referencedRelation: "lost_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       found_items: {
         Row: {
           category: string
