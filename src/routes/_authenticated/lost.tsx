@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Plus, Pencil, Trash2, CheckCircle2, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
+import { getLostMessagePartners } from "@/lib/matches.functions";
 
 export const Route = createFileRoute("/_authenticated/lost")({
   head: () => ({ meta: [{ title: "My Lost Items — FindX" }] }),
@@ -21,41 +22,13 @@ function LostPage() {
 
   const load = async () => {
     if (!user) return;
-    const [{ data }, { data: matches }] = await Promise.all([
+    const [{ data }, partners] = await Promise.all([
       supabase.from("lost_items").select("*").eq("user_id", user.id).order("created_at", { ascending: false }),
-      supabase
-        .from("notifications")
-        .select("match_lost_id, match_found_id, created_at")
-        .eq("user_id", user.id)
-        .eq("match_kind", "lost->found")
-        .not("match_lost_id", "is", null)
-        .not("match_found_id", "is", null)
-        .order("created_at", { ascending: false }),
+      getLostMessagePartners(),
     ]);
     setItems(data ?? []);
 
-    const foundIds = Array.from(new Set((matches ?? []).map((m) => m.match_found_id).filter((id): id is string => !!id)));
-    if (!foundIds.length) {
-      setPartnerByItem({});
-      return;
-    }
-
-    const { data: foundItems } = await supabase.from("found_items").select("id, user_id").in("id", foundIds);
-    const foundOwnerById = new Map((foundItems ?? []).map((item) => [item.id, item.user_id]));
-    const nextPartners: Record<string, string> = {};
-
-    for (const match of matches ?? []) {
-      const lostId = match.match_lost_id as string | null;
-      const foundId = match.match_found_id as string | null;
-      if (!lostId || !foundId || nextPartners[lostId]) continue;
-
-      const partnerId = foundOwnerById.get(foundId);
-      if (partnerId && partnerId !== user.id) {
-        nextPartners[lostId] = partnerId;
-      }
-    }
-
-    setPartnerByItem(nextPartners);
+    setPartnerByItem(partners ?? {});
   };
   useEffect(() => { load(); }, [user]);
 
