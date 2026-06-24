@@ -55,8 +55,8 @@ function InboxPage() {
 
       const ids = Array.from(byPartner.keys());
       if (ids.length) {
-        const { data: profiles } = await supabase.from("profiles").select("id, full_name").in("id", ids);
-        for (const p of profiles ?? []) {
+        const { data: profiles } = await supabase.rpc("get_profile_names", { _ids: ids });
+        for (const p of (profiles as any[]) ?? []) {
           const t = byPartner.get(p.id);
           if (t) t.partnerName = p.full_name;
         }
