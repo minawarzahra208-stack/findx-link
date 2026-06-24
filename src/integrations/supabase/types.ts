@@ -301,6 +301,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_profile_names: {
+        Args: { _ids: string[] }
+        Returns: {
+          full_name: string
+          id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
