@@ -137,8 +137,9 @@ function ThreadPage() {
     if (!user) return;
     load();
     loadMatch();
-    supabase.from("profiles").select("full_name").eq("id", partnerId).maybeSingle().then(({ data }) => {
-      if (data) setPartnerName(data.full_name);
+    supabase.rpc("get_profile_names", { _ids: [partnerId] }).then(({ data }) => {
+      const row = (data as any[] | null)?.[0];
+      if (row) setPartnerName(row.full_name);
     });
     supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle().then(({ data }) => {
       if (data) setMyName(data.full_name);
