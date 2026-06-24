@@ -54,11 +54,10 @@ function NotifPage() {
     }
 
     if (partnerIds.size) {
-      const { data: profs } = await supabase
-        .from("profiles")
-        .select("id, full_name")
-        .in("id", Array.from(partnerIds));
-      const profMap = new Map((profs ?? []).map((p: any) => [p.id, p.full_name as string]));
+      const { data: profs } = await supabase.rpc("get_profile_names", {
+        _ids: Array.from(partnerIds),
+      });
+      const profMap = new Map(((profs as any[]) ?? []).map((p: any) => [p.id, p.full_name as string]));
       const map: Record<string, Partner> = {};
       for (const [nid, pid] of Object.entries(byNotif)) {
         map[nid] = { id: pid, full_name: profMap.get(pid) ?? "FindX user" };
